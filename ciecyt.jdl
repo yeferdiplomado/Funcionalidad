@@ -1,0 +1,67 @@
+application {
+  config {
+    applicationType monolith
+    authenticationType jwt
+    baseName ciecyt
+    buildTool maven
+    cacheProvider ehcache
+    clientFramework vue
+    clientTheme cerulean
+    clientThemeVariant primary
+    creationTimestamp 1728420589973
+    databaseType sql
+    devDatabaseType postgresql
+    enableHibernateCache true
+    enableSwaggerCodegen false
+    enableTranslation true
+    jhipsterVersion "8.6.0"
+    jwtSecretKey "MWM3ZmU4YmYzNDg4NmUzY2IzNzgwMjQzY2ZkZDRhNDg5NjkxOTVhNmUxODE1MjgwM2Q0ZDdlZGQ2MTU2NGQ2YzEwNzVlZDIxNjg3MzMxMmFiZDAyMzk0ZWU2ZjQzZmYyY2E5MGRlYjZjYmRhYTMyYjIzYTU4ZWFhOTZhNWVjZWE="
+    languages [es, en]
+    messageBroker false
+    microfrontends []
+    nativeLanguage es
+    packageName co.edu.itp.ciecyt
+    prodDatabaseType postgresql
+    reactive false
+    searchEngine false
+    serviceDiscoveryType false
+    testFrameworks []
+    websocket false
+    withAdminUi true
+  }
+
+  entities Elemento, ElementoProyecto, IntegrantesProyecto, Proyecto
+}
+
+@ChangelogDate("20241008212552")
+entity Elemento {
+  elemento String required
+  descripcion String
+}
+@ChangelogDate("20241008212553")
+entity ElementoProyecto {
+  dato String required
+  descripcion String
+}
+@ChangelogDate("20241008212554")
+entity IntegrantesProyecto {
+  nombre String required
+  descripcion String
+}
+@ChangelogDate("20241008212551")
+entity Proyecto {
+  nombre String required
+  descripcion String
+}
+
+relationship OneToMany {
+  Elemento{elementosProyectos} to ElementoProyecto // Un Elemento (contenido global) tiene varios ElementoProyecto (partes específicas)
+  Proyecto{elementos} to Elemento // Un Proyecto tiene varios Elemento
+  Proyecto{integrantes} to IntegrantesProyecto // Un Proyecto tiene varios IntegrantesProyecto
+}
+
+dto Elemento, ElementoProyecto, IntegrantesProyecto, Proyecto with mapstruct
+paginate Elemento, ElementoProyecto, IntegrantesProyecto, Proyecto with pagination
+service Elemento, ElementoProyecto, IntegrantesProyecto, Proyecto with serviceImpl
+search Elemento, ElementoProyecto, IntegrantesProyecto, Proyecto with no
+

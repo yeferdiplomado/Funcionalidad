@@ -1,0 +1,23 @@
+{
+  "annotations": {
+    "changelogDate": "20241008212553"
+  },
+  "applications": ["ciecyt"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "dato",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "descripcion",
+      "fieldType": "String"
+    }
+  ],
+  "name": "ElementoProyecto",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}
