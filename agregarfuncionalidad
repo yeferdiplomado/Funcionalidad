@@ -1,0 +1,90 @@
+// se debe crear una funcionalidad para agregar imagenes sin sobrecargar la base de datos
+1. Modificar el servicio: ElementoProyectoService.java
+
+Agrega el método para manejar la subida de archivos en el servicio. Este método será responsable de guardar la imagen en la carpeta correspondiente y devolver el nombre del archivo.
+
+java
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.*;
+import java.nio.file.*;
+
+@Service
+public class ElementoProyectoService {
+
+    private final String UPLOAD_DIR = "src/main/webapp/content/images/elementos_proyecto/";
+
+    public String uploadImage(MultipartFile file) throws IOException {
+        // Crear el directorio si no existe
+        Path uploadPath = Paths.get(UPLOAD_DIR);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        // Guardar la imagen en el directorio
+        String fileName = file.getOriginalFilename();
+        Path filePath = uploadPath.resolve(fileName);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        // Retorna el nombre del archivo guardado
+        return fileName;
+    }
+}
+
+2. Modificar el controlador: ElementoProyectoResource.java
+
+Ahora en el controlador, simplemente llamas al método del servicio para manejar la subida de imágenes. De esta manera, el controlador permanece más limpio y se delega la lógica de negocio al servicio.
+
+java
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import co.edu.itp.ciecyt.service.ElementoProyectoService; // Importa el servicio
+
+import java.io.IOException;
+
+@RestController
+@RequestMapping("/api")
+public class ElementoProyectoResource {
+
+    private final ElementoProyectoService elementoProyectoService;
+
+    // Inyección del servicio en el constructor
+    public ElementoProyectoResource(ElementoProyectoService elementoProyectoService) {
+        this.elementoProyectoService = elementoProyectoService;
+    }
+
+    // Método para subir la imagen
+    @PostMapping("/elemento-proyectos/upload-image")
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
+        try {
+            // Llamar al servicio para guardar la imagen
+            String fileName = elementoProyectoService.uploadImage(file);
+            return ResponseEntity.ok(fileName);  // Retornar el nombre del archivo
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al subir la imagen.");
+        }
+    }
+}
+
+3. Actualizar el front-end en Vue
+
+En el formulario de creación/edición de ElementoProyecto, cuando subas una imagen, harás una llamada POST al nuevo endpoint /api/elemento-proyectos/upload-image, y recibirás el nombre del archivo en respuesta.
+
+Luego, ese nombre de archivo será lo que se guarde en el campo dato del ElementoProyecto.
+Resumen final de los pasos:
+
+    Servicio (ElementoProyectoService.java):
+        Agrega la lógica para guardar la imagen en el sistema de archivos.
+        Retorna el nombre del archivo para almacenarlo en la entidad ElementoProyecto.
+
+    Controlador (ElementoProyectoResource.java):
+        Agrega un nuevo método para subir la imagen, llamando al servicio para manejar la lógica.
+        Mantiene el controlador limpio y enfocado solo en recibir las solicitudes.
+
+    Front-end (Vue):
+        Actualiza el formulario para permitir la subida de imágenes.
+        Envía el archivo al backend y guarda el nombre del archivo en el campo dato.
